@@ -183,8 +183,6 @@ static inline void PfDeallocateContainer(VkFFTSpecializationConstantsLayout* sc,
 				free(container->name);
 			container->name = 0;
 		}
-		container->size = 0;
-		container->type = 0;
 		if(container->type < 200){
 			if ((((container->type % 100) / 10) == 3) && ((container->type % 10) == 2)) {
 				PfDeallocateContainer(sc, &container->data.dd[0]);
@@ -201,6 +199,8 @@ static inline void PfDeallocateContainer(VkFFTSpecializationConstantsLayout* sc,
 				container->data.c = 0;
 			}
 		}
+		container->size = 0;
+		container->type = 0;
 	}
 	return;
 }
@@ -3347,8 +3347,14 @@ sincos(%s, &%s.y, &%s.x);\n", in_1->name, out->name, out->name);
 						PfAppendLine(sc);
 #elif ((VKFFT_BACKEND == 3) || (VKFFT_BACKEND == 4) || (VKFFT_BACKEND == 5))
 						sc->tempLen = sprintf(sc->tempStr, "\
-%s.y = sincos(%s, &%s.x);\n", out->name, in_1->name, out->name);
+%s.x = cos(%s);\n", out->name, in_1->name);
 						PfAppendLine(sc);
+						sc->tempLen = sprintf(sc->tempStr, "\
+%s.y = sin(%s);\n", out->name, in_1->name);
+						PfAppendLine(sc);
+						/*sc->tempLen = sprintf(sc->tempStr, "\
+%s.y = sincos(%s, &%s.x);\n", out->name, in_1->name, out->name);
+						PfAppendLine(sc);*/
 #endif
 						return;
 					}

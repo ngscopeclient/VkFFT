@@ -225,16 +225,16 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				CUresult result = CUDA_SUCCESS;
 				pfUINT args_id = 0;
 				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
-					args[args_id] = &axis->inputBuffer[i];
+					args[args_id] = &axis->inputBuffer[l];
 					args_id++;
 				}
 				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
-					args[args_id] = &axis->outputBuffer[i];
+					args[args_id] = &axis->outputBuffer[l];
 					args_id++;
 				}
 				if (axis->specializationConstants.convolutionStep) {
 					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
-						args[args_id] = &axis->kernel[i];
+						args[args_id] = &axis->kernel[l];
 						args_id++;
 					}
 				}
@@ -302,16 +302,16 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				const void* args[20];
 				pfUINT args_id = 0;
 				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
-					args[args_id] = &axis->inputBuffer[i];
+					args[args_id] = &axis->inputBuffer[l];
 					args_id++;
 				}
 				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
-					args[args_id] = &axis->outputBuffer[i];
+					args[args_id] = &axis->outputBuffer[l];
 					args_id++;
 				}
 				if (axis->specializationConstants.convolutionStep) {
 					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
-						args[args_id] = &axis->kernel[i];
+						args[args_id] = &axis->kernel[l];
 						args_id++;
 					}
 				}
@@ -381,7 +381,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 
 				pfUINT args_id = 0;
 				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
-					args[args_id] = &axis->inputBuffer[i];
+					args[args_id] = &axis->inputBuffer[l];
 					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
@@ -389,7 +389,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 					args_id++;
 				}
 				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
-					args[args_id] = &axis->outputBuffer[i];
+					args[args_id] = &axis->outputBuffer[l];
 					result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 					if (result != CL_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
@@ -398,7 +398,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 				if (axis->specializationConstants.convolutionStep) {
 					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
-						args[args_id] = &axis->kernel[i];
+						args[args_id] = &axis->kernel[l];
 						result = clSetKernelArg(axis->VkFFTKernel, (cl_uint)args_id, sizeof(cl_mem), args[args_id]);
 						if (result != CL_SUCCESS) {
 							return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
@@ -462,7 +462,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				const void* args[20];
 				pfUINT args_id = 0;
 				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
-					args[args_id] = &axis->inputBuffer[i];
+					args[args_id] = &axis->inputBuffer[l];
 					result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
 					if (result != ZE_RESULT_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
@@ -470,7 +470,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 					args_id++;
 				}
 				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
-					args[args_id] = &axis->outputBuffer[i];
+					args[args_id] = &axis->outputBuffer[l];
 					result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
 					if (result != ZE_RESULT_SUCCESS) {
 						return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
@@ -479,7 +479,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				}
 				if (axis->specializationConstants.convolutionStep) {
 					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
-						args[args_id] = &axis->kernelBuffer[i];
+						args[args_id] = &axis->kernelBuffer[l];
 						result = zeKernelSetArgumentValue(axis->VkFFTKernel, (uint32_t)args_id, sizeof(void*), args[args_id]);
 						if (result != ZE_RESULT_SUCCESS) {
 							return VKFFT_ERROR_FAILED_TO_SET_KERNEL_ARG;
@@ -544,11 +544,11 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 				const void* args[20];
 				pfUINT args_id = 0;
 				for (int l = 0; l < axis->specializationConstants.inputBufferNum; l++){
-					app->configuration.commandEncoder->setBuffer(axis->inputBuffer[i], 0, args_id);
+					app->configuration.commandEncoder->setBuffer(axis->inputBuffer[l], 0, args_id);
 					args_id++;
 				}
 				for (int l = 0; l < axis->specializationConstants.outputBufferNum; l++){
-					app->configuration.commandEncoder->setBuffer(axis->outputBuffer[i], 0, args_id);
+					app->configuration.commandEncoder->setBuffer(axis->outputBuffer[l], 0, args_id);
 					args_id++;
 				}
 
@@ -556,7 +556,7 @@ static inline VkFFTResult VkFFT_DispatchPlan(VkFFTApplication* app, VkFFTAxis* a
 
 				if (axis->specializationConstants.convolutionStep) {
 					for (int l = 0; l < axis->specializationConstants.kernelNum; l++){
-						app->configuration.commandEncoder->setBuffer(axis->kernel[i], 0, args_id);
+						app->configuration.commandEncoder->setBuffer(axis->kernel[l], 0, args_id);
 						args_id++;
 					}
 				}

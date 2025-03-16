@@ -592,7 +592,7 @@ static inline void freeRegisterInitialization(VkFFTSpecializationConstantsLayout
 	PfDeallocateContainer(sc, &sc->inoutID_x);
 	PfDeallocateContainer(sc, &sc->inoutID_y);
 
-	if ((sc->performZeropaddingFull[0]) || (sc->performZeropaddingFull[1]) || (sc->performZeropaddingFull[2])) {
+	if ((sc->fftDim.data.i < sc->fft_dim_full.data.i) || ((type % 10) == 1) || ((type%10) == 2) || (sc->performZeropaddingFull[0]) || (sc->performZeropaddingFull[1]) || (sc->performZeropaddingFull[2])) {
 		PfDeallocateContainer(sc, &sc->disableThreads);
 	}
 	//initialize subgroups ids

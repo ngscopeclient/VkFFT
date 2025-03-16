@@ -208,12 +208,6 @@ static inline VkFFTResult VkFFTSplitAxisBlock(VkFFTApplication* app, VkFFTPlan* 
 				else
 					axis->axisBlock[0] = ((pfUINT)axis->specializationConstants.stageStartSize.data.i > axis->groupedBatch) ? axis->groupedBatch : axis->specializationConstants.stageStartSize.data.i;
 				
-				if ((app->configuration.vendorID == 0x10DE) && (!((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite)))) {
-					while ((axis->axisBlock[1] * axis->axisBlock[0] >= 2 * app->configuration.aimThreads) && (axis->axisBlock[0] > maxBatchCoalesced)) {
-						axis->axisBlock[0] /= 2;
-						if (axis->axisBlock[0] < maxBatchCoalesced) axis->axisBlock[0] = maxBatchCoalesced;
-					}
-				}
 				if (axis->axisBlock[0] > app->configuration.maxComputeWorkGroupSize[0]) axis->axisBlock[0] = app->configuration.maxComputeWorkGroupSize[0];
 				if (axis->axisBlock[0] * axis->axisBlock[1] > maxThreadNum) {
 					for (pfUINT i = 1; i <= axis->axisBlock[0]; i++) {
@@ -421,12 +415,7 @@ static inline VkFFTResult VkFFTSplitAxisBlock(VkFFTApplication* app, VkFFTPlan* 
 				r2cmult = 1;
 			}
 			if ((FFTPlan->numAxisUploads[0] == 1) && ((pfUINT)pfceil(FFTPlan->actualFFTSizePerAxis[axis_id][1] / (double)r2cmult) < axis->axisBlock[1])) axis->axisBlock[1] = (pfUINT)pfceil(FFTPlan->actualFFTSizePerAxis[axis_id][1] / (double)r2cmult);
-			if (((app->configuration.vendorID == 0x10DE)|| (numRHS < 16384)) && (!((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite)))) {
-				while ((axis->axisBlock[1] * axis->axisBlock[0] >= 2 * app->configuration.aimThreads) && (axis->axisBlock[1] > maxBatchCoalesced)) {
-					axis->axisBlock[1] /= 2;
-					if (axis->axisBlock[1] < maxBatchCoalesced) axis->axisBlock[1] = maxBatchCoalesced;
-				}
-			}
+			
 			if (axis->axisBlock[1] > app->configuration.maxComputeWorkGroupSize[1]) axis->axisBlock[1] = app->configuration.maxComputeWorkGroupSize[1];
 			//if (axis->axisBlock[0] * axis->axisBlock[1] > app->configuration.maxThreadsNum) axis->axisBlock[1] /= 2;
 			if (axis->axisBlock[0] * axis->axisBlock[1] > maxThreadNum) {
@@ -510,12 +499,7 @@ static inline VkFFTResult VkFFTSplitAxisBlock(VkFFTApplication* app, VkFFTPlan* 
 			if ((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite) && ((axis->specializationConstants.warpSize / axis->axisBlock[0]) < (app->configuration.coalescedMemory / axis->specializationConstants.complexSize)))
 				axis->axisBlock[0] = axis->specializationConstants.warpSize / (app->configuration.coalescedMemory / axis->specializationConstants.complexSize);
 
-			if (((app->configuration.vendorID == 0x10DE) || (numRHS < 8192)) && (!((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite)))) {
-				while ((axis->axisBlock[1] * axis->axisBlock[0] >= 2 * app->configuration.aimThreads) && (axis->axisBlock[0] > maxBatchCoalesced)) {
-					axis->axisBlock[0] /= 2;
-					if (axis->axisBlock[0] < maxBatchCoalesced) axis->axisBlock[0] = maxBatchCoalesced;
-				}
-			}
+			
 			if (axis->axisBlock[0] > app->configuration.maxComputeWorkGroupSize[0]) axis->axisBlock[0] = app->configuration.maxComputeWorkGroupSize[0];
 			if (axis->axisBlock[0] * axis->axisBlock[1] > maxThreadNum) {
 				for (pfUINT i = 1; i <= axis->axisBlock[0]; i++) {
@@ -560,12 +544,7 @@ static inline VkFFTResult VkFFTSplitAxisBlock(VkFFTApplication* app, VkFFTPlan* 
 		}
 		if (axis->axisBlock[1] * axis->groupedBatch < app->configuration.warpSize) axis->groupedBatch = app->configuration.warpSize/axis->axisBlock[1];
 		axis->axisBlock[0] = (FFTPlan->actualFFTSizePerAxis[axis_id][0] > axis->groupedBatch) ? axis->groupedBatch : FFTPlan->actualFFTSizePerAxis[axis_id][0];
-		if (((app->configuration.vendorID == 0x10DE) || ((numRHS < 8192) && (FFTPlan->actualFFTSizePerAxis[axis_id][0] < 1024))) && (!((axis->specializationConstants.reorderFourStep == 1) && (axis->specializationConstants.disableTransposeSharedReorderFourStepForWrite)))) {
-			while ((axis->axisBlock[1] * axis->axisBlock[0] >= 2 * app->configuration.aimThreads) && (axis->axisBlock[0] > maxBatchCoalesced)) {
-				axis->axisBlock[0] /= 2;
-				if (axis->axisBlock[0] < maxBatchCoalesced) axis->axisBlock[0] = maxBatchCoalesced;
-			}
-		}
+		
 		if (axis->axisBlock[0] > app->configuration.maxComputeWorkGroupSize[0]) axis->axisBlock[0] = app->configuration.maxComputeWorkGroupSize[0];
 		if (axis->axisBlock[0] * axis->axisBlock[1] > maxThreadNum) {
 			for (pfUINT i = 1; i <= axis->axisBlock[0]; i++) {
