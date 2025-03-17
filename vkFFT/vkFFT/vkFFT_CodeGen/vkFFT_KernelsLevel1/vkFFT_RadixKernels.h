@@ -813,9 +813,9 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 		break;
 	}
 	case 11: {
-		PfContainer tf_x[20] = VKFFT_ZERO_INIT;
-		PfContainer tf_y[20] = VKFFT_ZERO_INIT;
-		for (pfINT i = 0; i < 20; i++){
+		PfContainer tf_x[10] = VKFFT_ZERO_INIT;
+		PfContainer tf_y[10] = VKFFT_ZERO_INIT;
+		for (pfINT i = 0; i < 10; i++){
 			tf_x[i].type = 22;
 			tf_y[i].type = 22;
 		}
@@ -965,12 +965,10 @@ static inline void inlineRadixKernelVkFFT(VkFFTSpecializationConstantsLayout* sc
 		break;
 	}
 	case 13: {
-		PfContainer tf_x[20] = VKFFT_ZERO_INIT;
-		for (pfINT i = 0; i < 20; i++){
+		PfContainer tf_x[12] = VKFFT_ZERO_INIT;
+		PfContainer tf_y[12] = VKFFT_ZERO_INIT;
+		for (pfINT i = 0; i < 12; i++){
 			tf_x[i].type = 22;
-		}
-		PfContainer tf_y[20] = VKFFT_ZERO_INIT;
-		for (pfINT i = 0; i < 20; i++){
 			tf_y[i].type = 22;
 		}
 		
