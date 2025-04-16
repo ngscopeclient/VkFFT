@@ -206,7 +206,7 @@ static inline void appendOffset(VkFFTSpecializationConstantsLayout* sc, int read
         for (int i = 1; i < sc->numFFTdims; i++){
             if (((i != sc->axis_id)&&(sc->axis_id > 0)) || ((i>1) && (sc->axis_id == 0))) {
                 PfMod(sc, &sc->inoutID_y, &sc->tempInt, &sc->size[i]);
-                checkZeropad_otherAxes(sc, &sc->inoutID_y, i);
+                checkZeropad_otherAxes(sc, &sc->inoutID_y, i, 1);
                 PfMul(sc, &sc->inoutID_y, &sc->inoutID_y, &bufferStride[locStrideOrder], 0);
                 PfAdd(sc, &sc->shiftZ, &sc->shiftZ, &sc->inoutID_y);
 				if ((i!=(sc->numFFTdims-1) && (sc->axis_id != (sc->numFFTdims-1))) || ((i!=(sc->numFFTdims-2)) && (sc->axis_id == (sc->numFFTdims-1))))
@@ -367,7 +367,7 @@ static inline void appendKernelOffset(VkFFTSpecializationConstantsLayout* sc, in
         for (int i = 1; i < sc->numFFTdims; i++){
             if (((i != sc->axis_id)&&(sc->axis_id > 0)) || ((i>1) && (sc->axis_id == 0))) {
                 PfMod(sc, &sc->inoutID_y, &sc->tempInt, &sc->size[i]);
-                checkZeropad_otherAxes(sc, &sc->inoutID_y, i);
+                checkZeropad_otherAxes(sc, &sc->inoutID_y, i, 1);
                 PfMul(sc, &sc->inoutID_y, &sc->inoutID_y, &bufferStride[locStrideOrder], 0);
                 PfAdd(sc, &sc->blockInvocationID, &sc->blockInvocationID, &sc->inoutID_y);
 				if ((i!=(sc->numFFTdims-1) && (sc->axis_id != (sc->numFFTdims-1))) || ((i!=(sc->numFFTdims-2)) && (sc->axis_id == (sc->numFFTdims-1))))
@@ -534,27 +534,27 @@ static inline void appendReadWriteDataVkFFT_nonstrided(VkFFTSpecializationConsta
 					PfAdd(sc, &sc->shiftY, &sc->gl_WorkGroupID_y, &sc->workGroupShiftY);
 					temp_int.data.i = mult.data.i * batching_localSize.data.i;
 					PfMul(sc, &sc->shiftY, &sc->shiftY, &temp_int, 0);
-					checkZeropad_otherAxes(sc, &sc->shiftY, 1);
+					checkZeropad_otherAxes(sc, &sc->shiftY, 1, temp_int.data.i);
 				}
 				else {
 					PfMov(sc, &sc->shiftY, &sc->gl_WorkGroupID_y);
 					temp_int.data.i = mult.data.i * batching_localSize.data.i;
 					PfMul(sc, &sc->shiftY, &sc->shiftY, &temp_int, 0);
-					checkZeropad_otherAxes(sc, &sc->shiftY, 1);
+					checkZeropad_otherAxes(sc, &sc->shiftY, 1, temp_int.data.i);
 				}
 				PfSetToZero(sc, &sc->shiftZ);
 			}
 			else {
 				if (sc->performWorkGroupShift[1]) {
 					PfAdd(sc, &sc->shiftY, &sc->gl_WorkGroupID_y, &sc->workGroupShiftY);
-					checkZeropad_otherAxes(sc, &sc->shiftY, 1);
+					checkZeropad_otherAxes(sc, &sc->shiftY, 1, 1);
 					temp_int.data.i = sc->inputStride[1].data.i;
 					PfMul(sc, &sc->shiftZ, &sc->shiftY, &temp_int, 0);
 				}
 				else
 				{
 					PfMov(sc, &sc->shiftY, &sc->gl_WorkGroupID_y);
-					checkZeropad_otherAxes(sc, &sc->shiftY, 1);
+					checkZeropad_otherAxes(sc, &sc->shiftY, 1, 1);
 					temp_int.data.i = sc->inputStride[1].data.i;
 					PfMul(sc, &sc->shiftZ, &sc->shiftY, &temp_int, 0);
 				}
@@ -1324,14 +1324,14 @@ static inline void appendReadWriteDataVkFFT_strided(VkFFTSpecializationConstants
 			if (sc->size[1].data.i > 1) {
 				if (sc->performWorkGroupShift[1]) {
 					PfAdd(sc, &sc->shiftY, &sc->gl_WorkGroupID_y, &sc->workGroupShiftY);
-					checkZeropad_otherAxes(sc, &sc->shiftY, 1);
+					checkZeropad_otherAxes(sc, &sc->shiftY, 1, 1);
 					temp_int.data.i = sc->inputStride[1].data.i;
 					PfMul(sc, &sc->shiftZ, &sc->shiftY, &temp_int, 0);
 				}
 				else
 				{
 					PfMov(sc, &sc->shiftY, &sc->gl_WorkGroupID_y);
-					checkZeropad_otherAxes(sc, &sc->shiftY, 1);
+					checkZeropad_otherAxes(sc, &sc->shiftY, 1, 1);
 					temp_int.data.i = sc->inputStride[1].data.i;
 					PfMul(sc, &sc->shiftZ, &sc->shiftY, &temp_int, 0);
 				}
@@ -1348,7 +1348,7 @@ static inline void appendReadWriteDataVkFFT_strided(VkFFTSpecializationConstants
 		if (sc->axis_id > 0) {
 			if (sc->reorderFourStep == 2) {
 				PfMod(sc, &sc->inoutID_x, &sc->shiftX, &sc->fft_dim_x);
-				checkZeropad_otherAxes(sc, &sc->inoutID_x, 0);
+				checkZeropad_otherAxes(sc, &sc->inoutID_x, 0, 1);
 				//&sc->tempIntLen = sprintf(&sc->tempIntStr, "		disableThreads = (((%s%s) / %" PRIu64 ") %% (%" PRIu64 ")+((%s%s) / %" PRIu64 ") * (%" PRIu64 ") < %" PRIu64 ") ? 1 : 0;\n", &sc->gl_GlobalInvocationID_x, shiftX, &sc->fft_dim_x, &sc->stageStartSize, &sc->gl_GlobalInvocationID_x, shiftX, &sc->fft_dim_x * &sc->stageStartSize, &sc->fftDim * &sc->stageStartSize, &sc->size[&sc->axis_id]);
 
 				PfDiv(sc, &sc->tempInt2, &sc->shiftX, &sc->fft_dim_x);
@@ -1359,7 +1359,7 @@ static inline void appendReadWriteDataVkFFT_strided(VkFFTSpecializationConstants
 			}
 			else {
 				PfMod(sc, &sc->inoutID_x, &sc->shiftX, &sc->fft_dim_x);
-				checkZeropad_otherAxes(sc, &sc->inoutID_x, 0);
+				checkZeropad_otherAxes(sc, &sc->inoutID_x, 0, 1);
 				//&sc->tempIntLen = sprintf(&sc->tempIntStr, "		disableThreads = (((%s%s) / %" PRIu64 ") %% (%" PRIu64 ")+((%s%s) / %" PRIu64 ") * (%" PRIu64 ") < %" PRIu64 ") ? 1 : 0;\n", &sc->gl_GlobalInvocationID_x, shiftX, &sc->fft_dim_x, &sc->stageStartSize, &sc->gl_GlobalInvocationID_x, shiftX, &sc->fft_dim_x * &sc->stageStartSize, &sc->fftDim * &sc->stageStartSize, &sc->size[&sc->axis_id]);
 
 				PfDiv(sc, &sc->tempInt2, &sc->shiftX, &sc->fft_dim_x);

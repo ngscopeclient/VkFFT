@@ -276,14 +276,13 @@ static inline void appendRegisterInitialization(VkFFTSpecializationConstantsLayo
 	PfDefine(sc, &sc->inoutID_y, name);
 	PfSetToZero(sc, &sc->inoutID_y);
 
-	if ((sc->fftDim.data.i < sc->fft_dim_full.data.i) || ((type % 10) == 1) || ((type%10) == 2) || (sc->performZeropaddingFull[0]) || (sc->performZeropaddingFull[1]) || (sc->performZeropaddingFull[2])) {
-		sc->disableThreads.type = 101;
-		PfAllocateContainerFlexible(sc, &sc->disableThreads, 50);
-		sprintf(name, "disableThreads");
-		PfDefine(sc, &sc->disableThreads, name);
-		temp_int.data.i = 1;
-		PfMov(sc, &sc->disableThreads, &temp_int);
-	}
+	sc->disableThreads.type = 101;
+	PfAllocateContainerFlexible(sc, &sc->disableThreads, 50);
+	sprintf(name, "disableThreads");
+	PfDefine(sc, &sc->disableThreads, name);
+	temp_int.data.i = 1;
+	PfMov(sc, &sc->disableThreads, &temp_int);
+
 	//initialize subgroups ids
 	if (sc->useRader) {
 		sc->raderIDx.type = 100 + sc->uintTypeCode;
@@ -592,9 +591,7 @@ static inline void freeRegisterInitialization(VkFFTSpecializationConstantsLayout
 	PfDeallocateContainer(sc, &sc->inoutID_x);
 	PfDeallocateContainer(sc, &sc->inoutID_y);
 
-	if ((sc->fftDim.data.i < sc->fft_dim_full.data.i) || ((type % 10) == 1) || ((type%10) == 2) || (sc->performZeropaddingFull[0]) || (sc->performZeropaddingFull[1]) || (sc->performZeropaddingFull[2])) {
-		PfDeallocateContainer(sc, &sc->disableThreads);
-	}
+	PfDeallocateContainer(sc, &sc->disableThreads);
 	//initialize subgroups ids
 	if (sc->useRader) {
 		PfDeallocateContainer(sc, &sc->raderIDx);

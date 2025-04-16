@@ -60,7 +60,8 @@ static inline VkFFTResult shaderGen_FFT(VkFFTSpecializationConstantsLayout* sc, 
 			sc->res = VKFFT_ERROR_MALLOC_FAILED;
 			return sc->res;
 		}
-		strcpy(sc->oldLocale, loc_oldLocale);
+		if (!strcmp(loc_oldLocale, ""))
+			strcpy(sc->oldLocale, loc_oldLocale);
 		setlocale(LC_ALL, "C");
 	}
 	appendVersion(sc);

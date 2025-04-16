@@ -35,8 +35,18 @@ static inline void checkZeropadStart_otherAxes(VkFFTSpecializationConstantsLayou
             if (axisCheck == i) {
                 if (sc->performZeropaddingFull[i]) {
                     if (sc->fft_zeropad_left_full[i].data.i < sc->fft_zeropad_right_full[i].data.i) {
+                        temp_int.data.i = 1;
+                        PfMov(sc, &sc->tempInt, &temp_int);
+
                         PfIf_ge_start(sc, location, &sc->fft_zeropad_left_full[i]);
                         PfIf_lt_start(sc, location, &sc->fft_zeropad_right_full[i]);
+                        temp_int.data.i = 0;
+                        PfMov(sc, &sc->tempInt, &temp_int);
+                        PfIf_end(sc);
+                        PfIf_end(sc);
+
+                        temp_int.data.i = 0;
+		                PfIf_gt_start(sc, &sc->tempInt, &temp_int);
                     }
                 }
             }
@@ -47,8 +57,18 @@ static inline void checkZeropadStart_otherAxes(VkFFTSpecializationConstantsLayou
             if (axisCheck == i) {
                 if (sc->performZeropaddingFull[i]) {
                     if (sc->fft_zeropad_left_full[i].data.i < sc->fft_zeropad_right_full[i].data.i) {
+                        temp_int.data.i = 1;
+                        PfMov(sc, &sc->tempInt, &temp_int);
+
                         PfIf_ge_start(sc, location, &sc->fft_zeropad_left_full[i]);
                         PfIf_lt_start(sc, location, &sc->fft_zeropad_right_full[i]);
+                        temp_int.data.i = 0;
+                        PfMov(sc, &sc->tempInt, &temp_int);
+                        PfIf_end(sc);
+                        PfIf_end(sc);
+
+                        temp_int.data.i = 0;
+		                PfIf_gt_start(sc, &sc->tempInt, &temp_int);
                     }
                 }
             }
@@ -67,7 +87,6 @@ static inline void checkZeropadEnd_otherAxes(VkFFTSpecializationConstantsLayout*
                 if (sc->performZeropaddingFull[i]) {
                     if (sc->fft_zeropad_left_full[i].data.i < sc->fft_zeropad_right_full[i].data.i) {
                         PfIf_end(sc);
-                        PfIf_end(sc);
                     }
                 }
             }
@@ -79,7 +98,6 @@ static inline void checkZeropadEnd_otherAxes(VkFFTSpecializationConstantsLayout*
                 if (sc->performZeropaddingFull[i]) {
                     if (sc->fft_zeropad_left_full[i].data.i < sc->fft_zeropad_right_full[i].data.i) {
                         PfIf_end(sc);
-                        PfIf_end(sc);
                     }
                 }
             }
@@ -88,7 +106,7 @@ static inline void checkZeropadEnd_otherAxes(VkFFTSpecializationConstantsLayout*
 	return;
 }
 
-static inline void checkZeropad_otherAxes(VkFFTSpecializationConstantsLayout* sc, PfContainer* location, int axisCheck) {
+static inline void checkZeropad_otherAxes(VkFFTSpecializationConstantsLayout* sc, PfContainer* location, int axisCheck, int batch) {
 	//return if sequence is full of zeros from the start
 	if (sc->res != VKFFT_SUCCESS) return;
 	PfContainer temp_int = VKFFT_ZERO_INIT;
@@ -100,7 +118,8 @@ static inline void checkZeropad_otherAxes(VkFFTSpecializationConstantsLayout* sc
                     if (sc->fft_zeropad_left_full[i].data.i < sc->fft_zeropad_right_full[i].data.i) {
                         sc->useDisableThreads = 1;
                         PfIf_ge_start(sc, location, &sc->fft_zeropad_left_full[i]);
-                        PfIf_lt_start(sc, location, &sc->fft_zeropad_right_full[i]);
+                        temp_int.data.i = (sc->fft_zeropad_right_full[i].data.i / batch) * batch;
+                        PfIf_lt_start(sc, location, &temp_int);
                         temp_int.data.i = 0;
                         PfMov(sc, &sc->disableThreads, &temp_int);
                         PfIf_end(sc);
@@ -117,7 +136,8 @@ static inline void checkZeropad_otherAxes(VkFFTSpecializationConstantsLayout* sc
                     if (sc->fft_zeropad_left_full[i].data.i < sc->fft_zeropad_right_full[i].data.i) {
                         sc->useDisableThreads = 1;
                         PfIf_ge_start(sc, location, &sc->fft_zeropad_left_full[i]);
-                        PfIf_lt_start(sc, location, &sc->fft_zeropad_right_full[i]);
+                        temp_int.data.i = (sc->fft_zeropad_right_full[i].data.i / batch) * batch;
+                        PfIf_lt_start(sc, location, &temp_int);
                         temp_int.data.i = 0;
                         PfMov(sc, &sc->disableThreads, &temp_int);
                         PfIf_end(sc);
