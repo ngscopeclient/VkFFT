@@ -282,6 +282,8 @@ static inline void appendKernelConvolution(VkFFTSpecializationConstantsLayout* s
 
 				PfAdd(sc, &sc->inoutID_y, &sc->inoutID_y, &sc->shiftY);
 
+				temp_int.data.i = batching_localSize.data.i;
+
 				if ((sc->size[1].data.i % temp_int.data.i) != 0) {
 #if (VKFFT_BACKEND!=2) //AMD compiler fix
 					PfIf_lt_start(sc, &sc->inoutID_y, &sc->size[1]);
@@ -423,14 +425,15 @@ static inline void appendKernelConvolution(VkFFTSpecializationConstantsLayout* s
 				}
 			}
 		}
-		else {
+		else if(strideType == 1) {
 			temp_int1.data.i = (i + 1) * sc->localSize[1].data.i;
 
 			if (temp_int1.data.i > sc->fftDim.data.i) {
-				//&sc->tempIntLen = sprintf(&sc->tempIntStr, "		if(%s < %" PRIu64 "){\n", &sc->gl_LocalInvocationID_y, &sc->fftDim - (i + k * used_registers) * &sc->localSize[1]);
-				temp_int1.data.i = sc->localSize[1].data.i - (temp_int1.data.i - sc->fftDim.data.i);
-				PfIf_lt_start(sc, &sc->gl_LocalInvocationID_y, &temp_int1);
+				PfIf_end(sc);
 			}
+		}
+		if (localSize.data.i * ((1 + (pfINT)i)) > sc->fftDim.data.i) {
+			PfIf_end(sc);
 		}
 	}
 
